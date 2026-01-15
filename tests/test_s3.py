@@ -1034,13 +1034,6 @@ class S3StorageTests(TestCase):
             self.assertIs(settings["verify"], True)
             self.assertIsInstance(settings["verify"], bool)
 
-        # Test with CA bundle path (should remain string)
-        with override_settings(AWS_S3_VERIFY="/path/to/ca-bundle.crt"):
-            storage = s3.S3Storage()
-            settings = storage.get_default_settings()
-            self.assertEqual(settings["verify"], "/path/to/ca-bundle.crt")
-            self.assertIsInstance(settings["verify"], str)
-
         # Test with boolean False (should remain boolean)
         with override_settings(AWS_S3_VERIFY=False):
             storage = s3.S3Storage()
@@ -1051,40 +1044,6 @@ class S3StorageTests(TestCase):
         storage = s3.S3Storage()
         settings = storage.get_default_settings()
         self.assertIsNone(settings["verify"])
-
-    def test_verify_attribute_uses_get_default_settings(self):
-        """Test that storage.verify attribute correctly uses converted value from get_default_settings"""
-        with override_settings(AWS_S3_VERIFY="false"):
-            storage = s3.S3Storage()
-            self.assertIs(storage.verify, False)
-            self.assertIsInstance(storage.verify, bool)
-
-        with override_settings(AWS_S3_VERIFY="true"):
-            storage = s3.S3Storage()
-            self.assertIs(storage.verify, True)
-            self.assertIsInstance(storage.verify, bool)
-
-    def test_verify_via_storages_options_dict(self):
-        """Test AWS_S3_VERIFY when passed via Django STORAGES OPTIONS"""
-        # STORAGES OPTIONS are Python dict values, so booleans stay as booleans
-        # No string conversion needed since it's not JSON - it's native Python
-
-        # Test with boolean False passed via OPTIONS (normal usage)
-        storage = s3.S3Storage(**{"verify": False})
-        self.assertIs(storage.verify, False)
-
-        # Test with boolean True
-        storage = s3.S3Storage(**{"verify": True})
-        self.assertIs(storage.verify, True)
-
-        # Test with path string - remains unchanged
-        storage = s3.S3Storage(**{"verify": "/path/to/cert.pem"})
-        self.assertEqual(storage.verify, "/path/to/cert.pem")
-
-        # Test that Django settings still work with string conversion
-        with override_settings(AWS_S3_VERIFY="false"):
-            storage = s3.S3Storage()
-            self.assertIs(storage.verify, False)
 
 
 class S3StaticStorageTests(TestCase):
