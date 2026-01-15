@@ -454,7 +454,6 @@ class S3Storage(CompressStorageMixin, BaseStorage):
 
         # Convert string "false"/"true" to boolean for verify parameter
         settings["verify"] = self._convert_string_to_bool(settings["verify"])
-
         return settings
 
     def __getstate__(self):
